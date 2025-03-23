@@ -7,7 +7,6 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
-import joblib
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.decomposition import PCA
@@ -23,7 +22,6 @@ from catboost import CatBoostClassifier
 from bayes_opt import BayesianOptimization
 
 from preprocess import Data
-
 
 def to_numeric_func(x: pd.DataFrame) -> pd.DataFrame:
     """
@@ -253,33 +251,11 @@ class TitanicModel:
                 best_w, best_acc = w, acc
         return best_w, 1 - best_w
 
-    def save_checkpoint(self) -> None:
-        """
-        Save the trained pipelines for XGBoost and CatBoost+PCA as checkpoints to files.
-        """
-        checkpoint_xgb_path = os.path.join(self.checkpoints_path, "checkpoint_xgb.pth")
-        checkpoint_cat_path = os.path.join(self.checkpoints_path, "checkpoint_cat.pth")
-        joblib.dump(self.pipeline_xgb, checkpoint_xgb_path)
-        joblib.dump(self.pipeline_cat, checkpoint_cat_path)
-        print("Checkpoints saved to", checkpoint_xgb_path, "and", checkpoint_cat_path)
-
     def predict(self) -> None:
         """
         Predict on the test set using an ensemble of the two models.
-        If checkpoint files exist, load the saved models before predicting.
         Then, save the submission file.
         """
-        checkpoint_xgb_path = os.path.join(self.checkpoints_path, "checkpoint_xgb.pth")
-        checkpoint_cat_path = os.path.join(self.checkpoints_path, "checkpoint_cat.tph")
-        try:
-            if os.path.exists(checkpoint_xgb_path) and os.path.exists(checkpoint_cat_path):
-                self.pipeline_xgb = joblib.load(checkpoint_xgb_path)
-                self.pipeline_cat = joblib.load(checkpoint_cat_path)
-                print("Loaded checkpoints from files.")
-            else:
-                print("Checkpoints not found. Using current pipelines.")
-        except Exception as e:
-            print("Error loading checkpoints:", e)
 
         # Predict probabilities on the test set for each model
         test_pred_xgb = self.pipeline_xgb.predict_proba(self.X_test)[:, 1]
@@ -307,8 +283,6 @@ if __name__ == "__main__":
 
     model = TitanicModel(datasets_path, data_processed_path, checkpoints_path)
     model.train()
-    # Optionally, save checkpoints after training
-    model.save_checkpoint()
     model.predict()
 
 
@@ -341,6 +315,4 @@ if __name__ == "__main__":
 # =============================================================
 # Best CatBoost parameters: {'depth': 3, 'iterations': 340, 'learning_rate': 0.032761244104905135}
 # Best ensemble weights: XGB: 0.64, CatBoost+PCA: 0.36
-# Checkpoints saved to titanic/checkpoints\checkpoint_xgb.pth and titanic/checkpoints\checkpoint_cat.pth
-# Loaded checkpoints from files.
 # Submission saved to titanic_submission.csv!
