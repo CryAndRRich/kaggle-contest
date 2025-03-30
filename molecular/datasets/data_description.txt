@@ -1,0 +1,55 @@
+Batch_ID: A unique identifier for each molecule
+
+T80: The time (in hours) required for 20% of the molecules to degrade in sunlight
+
+Smiles: A string representation of the molecular structure using SMILES (Simplified Molecular Input Line Entry System) notation
+
+Mass: The molecular mass
+
+HAcceptors: The number of hydrogen bond acceptors in the molecule
+
+HDonors: The number of hydrogen bond donors in the molecule
+
+LogP: The octanol–water partition coefficient
+
+Asphericity: A measure of the deviation of the molecular shape from a perfect sphere. Higher asphericity indicates a more elongated or irregular shape
+
+Rg: The radius of gyration of the molecule
+
+TPSA: The Topological Polar Surface Area
+
+RingCount: The number of rings present in the molecule
+
+NumRotatableBonds: The number of bonds in the molecule that are rotatable
+
+NumHeteroatoms: The number of heteroatoms (atoms other than carbon and hydrogen) present in the molecule
+
+HOMO(eV): The energy (eV) of the Highest Occupied Molecular Orbital
+
+HOMOm1(eV): The energy (eV) of the orbital immediately below the HOMO
+
+LUMO(eV): The energy (eV) of the Lowest Unoccupied Molecular Orbital
+
+LUMOp1(eV): The energy (eV) of the first orbital above the LUMO
+
+PrimeState: A computed property related to the ground (or “prime”) electronic state of the molecule, often serving as a reference state for further excited state calculations
+
+PrimeExcite(eV): The excitation energy (eV) for the transition from the ground state (PrimeState) to a designated excited state, as calculated by the Prime method
+
+PrimeExcite(osc): The oscillator strength for the excitation from the PrimeState to an excited state, as determined by the Prime method
+
+DipoleMoment(Debye): The dipole moment of the molecule measured in Debye
+
+SurfaceCharge: A descriptor representing the distribution of electric charge on the surface of the molecule
+
+ChargeCorrection: A correction factor applied to account for systematic errors in the computed charge distribution or related properties
+
+T1-T20: The energies (eV) of the first 20 triplet excited States
+
+S1-S20: The energies (eV) of the first 20 singlet excited States
+
+O1-O20: The transition dipole moments (oscillator strengths) from the ground state to the respective singlet excited states
+
+TDOS*: The Density of States (DOS) for the triplet manifold. Each peak is spread by a Gaussian function with a standard deviation of 0.2 eV, representing the distribution of triplet state energies
+
+SDOS*: The Density of States for the singlet manifold. This DOS is weighted by the state’s oscillator strength and each peak is broadened by a Gaussian (σ = 0.2 eV). It effectively represents a predicted absorption spectrum that has been shifted (by approximately +1.1 eV) and rescaled

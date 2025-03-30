@@ -35,7 +35,6 @@ def to_numeric_func(x: pd.DataFrame) -> pd.DataFrame:
     """
     return x.apply(pd.to_numeric, errors='coerce')
 
-
 class TitanicModel:
     """
     A class to build an ensemble model to predict Titanic survival using XGBoost and CatBoost+PCA.
@@ -284,7 +283,6 @@ if __name__ == "__main__":
     model = TitanicModel(datasets_path, data_processed_path, checkpoints_path)
     model.train()
     model.predict()
-
 
 # Data saved to processed_data.csv!
 

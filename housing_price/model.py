@@ -167,7 +167,7 @@ class HousingPriceModel:
         ensemble_test_preds = self.best_w_gbr * test_preds_gbr + self.best_w_cat * test_preds_cat
 
         # Add a constant adjustment to predictions (e.g., a "surprise" constant).
-        surprise_c: float = 2700
+        surprise_c = 2700
         submission = pd.DataFrame({
             'Id': self.test_data.index + 1,
             'SalePrice': ensemble_test_preds + surprise_c
@@ -177,7 +177,6 @@ class HousingPriceModel:
         output_file = os.path.join(self.datasets_dir, "housing_submission.csv")
         submission.to_csv(output_file, index=False)
         print("Submission saved to housing_submission.csv!")
-
 
 if __name__ == "__main__":
     datasets_path = "housing_price/datasets"
@@ -189,7 +188,6 @@ if __name__ == "__main__":
     model = HousingPriceModel(datasets_path, data_processed_path)
     model.train()
     model.predict()
-
 
 # Data saved to processed_data.csv!
 # Best ensemble weights: GBR: 0.03, CatBoost: 0.97

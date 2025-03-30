@@ -145,7 +145,6 @@ class SpaceshipModel:
         submission.to_csv(output_file, index=False)
         print("Submission saved to spaceship_submission.csv!")
 
-
 if __name__ == "__main__":
     datasets_path = "spaceship/datasets"
 

@@ -34,7 +34,6 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
 def impute(df: pd.DataFrame) -> pd.DataFrame:
     """
     Impute missing values in the DataFrame.
@@ -55,7 +54,6 @@ def impute(df: pd.DataFrame) -> pd.DataFrame:
         df[name] = df[name].fillna("None")
     
     return df
-
 
 # List of nominal (unordered) categorical features.
 features_nom = [
@@ -100,7 +98,6 @@ ordered_levels = {
 # Add a "None" level for missing values for all ordinal features.
 ordered_levels = {key: ["None"] + value for key, value in ordered_levels.items()}
 
-
 def encode(df: pd.DataFrame) -> pd.DataFrame:
     """
     Encode categorical features in the DataFrame.
@@ -128,7 +125,6 @@ def encode(df: pd.DataFrame) -> pd.DataFrame:
             # If conversion fails, skip the feature.
             continue
     return df
-
 
 class Data:
     def __init__(self, datasets_path: str) -> None:
@@ -452,7 +448,6 @@ class Data:
         print("Data saved to processed_data.csv!")
         return self.output
 
-
 if __name__ == "__main__":
     datasets_path = "housing_price/datasets"
     data = Data(datasets_path)
@@ -461,6 +456,6 @@ if __name__ == "__main__":
     data.baseline_score_dataset()
     data.save_csv()
 
-    # Baseline RMSLE: 0.13483
-    # Baseline MAE (log scale): 0.09351
-    # Data saved to processed_data.csv!
+# Baseline RMSLE: 0.13483
+# Baseline MAE (log scale): 0.09351
+# Data saved to processed_data.csv!
