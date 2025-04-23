@@ -18,10 +18,10 @@ from sklearn.metrics import accuracy_score
 
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
-
 from bayes_opt import BayesianOptimization
 
 from preprocess import Data
+
 
 def to_numeric_func(x: pd.DataFrame) -> pd.DataFrame:
     """
@@ -33,7 +33,8 @@ def to_numeric_func(x: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A DataFrame with numeric conversion applied.
     """
-    return x.apply(pd.to_numeric, errors='coerce')
+    return x.apply(pd.to_numeric, errors="coerce")
+
 
 class TitanicModel:
     """
@@ -41,14 +42,12 @@ class TitanicModel:
     """
     def __init__(self, 
                  datasets_path: str, 
-                 data_processed_path: str,
-                 checkpoints_path: str) -> None:
+                 data_processed_path: str) -> None:
         """
-        Initialize the model with the paths for datasets, processed data, and checkpoints.
+        Initialize the model with the paths for datasets, processed data
 
         Parameters:
             datasets_path: Path to the directory containing the datasets.
-            data_processed_path: Path to the processed data CSV file.
             checkpoints_path: Path to the directory containing the checkpoints.
         """
         self.checkpoints_path = checkpoints_path
@@ -91,7 +90,7 @@ class TitanicModel:
         """
         # Build numeric transformer pipeline for XGBoost using the named function instead of a lambda.
         self.numeric_transformer = Pipeline(steps=[
-            ('to_numeric', FunctionTransformer(to_numeric_func)),
+            ("to_numeric", FunctionTransformer(to_numeric_func)),
             ("imputer", SimpleImputer(strategy="mean")),
             ("scaler", StandardScaler())
         ])
@@ -110,31 +109,31 @@ class TitanicModel:
         # Build XGBoost pipeline (without PCA)
         self.pipeline_xgb = Pipeline(steps=[
             ("preprocessor", self.preprocessor),
-            ("xgb", XGBClassifier(n_estimators=20, random_state=71, eval_metric="logloss"))
+            ("xgb", XGBClassifier(n_estimators=20, random_state=42, eval_metric="logloss"))
         ])
 
         # Build CatBoost+PCA pipeline
         # Define PCA columns (apply PCA to these numeric columns)
-        pca_columns = ['Sex', 'Age', 'SibSp', 'Parch', 'Fare']
+        pca_columns = ["Sex", "Age", "SibSp", "Parch", "Fare"]
         # The remaining columns will be passed through unchanged.
         self.catboost_remainder = [col for col in self.features if col not in pca_columns]
 
         # Build a preprocessor for CatBoost that applies PCA on pca_columns and passes through the rest.
         self.preprocessor_cat_pca = ColumnTransformer(
             transformers=[
-                ('pca', PCA(n_components=3), pca_columns)
+                ("pca", PCA(n_components=3), pca_columns)
             ],
-            remainder='passthrough'
+            remainder="passthrough"
         )
 
         self._bayes_opt()
 
         # Build final CatBoost+PCA pipeline with tuned hyperparameters
         self.pipeline_cat = Pipeline(steps=[
-            ('preprocessing', self.preprocessor_cat_pca),
-            ('cat', CatBoostClassifier(
+            ("preprocessing", self.preprocessor_cat_pca),
+            ("cat", CatBoostClassifier(
                 **self.best_params_cat,
-                random_seed=71,
+                random_seed=42,
                 verbose=False,
                 cat_features=self.cat_feature_indices
             ))
@@ -142,7 +141,7 @@ class TitanicModel:
 
     def _bayes_opt(self) -> None:
         """
-        Use Bayesian Optimization to tune the hyperparameters for the CatBoost+PCA model.
+        Use Bayesian Optimization to tune the hyperparameters for the CatBoost+PCA model
         """
         # Fit the CatBoost+PCA preprocessor to determine categorical feature indices.
         X_cat_pca_transformed = self.preprocessor_cat_pca.fit_transform(self.X)
@@ -157,12 +156,12 @@ class TitanicModel:
             Evaluate the CatBoost+PCA pipeline using cross-validation.
 
             Parameters:
-                iterations: Number of boosting rounds (will be cast to int).
-                learning_rate: Learning rate.
-                depth: Tree depth (will be cast to int).
+                iterations: Number of boosting rounds (will be cast to int)
+                learning_rate: Learning rate
+                depth: Tree depth (will be cast to int)
 
             Returns:
-                float: Mean ROC AUC score from cross-validation.
+                float: Mean ROC AUC score from cross-validation
             """
             iterations_int = int(iterations)
             depth_int = int(depth)
@@ -170,13 +169,13 @@ class TitanicModel:
                 iterations=iterations_int,
                 learning_rate=learning_rate,
                 depth=depth_int,
-                random_seed=71,
+                random_seed=42,
                 verbose=False,
                 cat_features=self.cat_feature_indices
             )
             pipe = Pipeline(steps=[
-                ('preprocessing', self.preprocessor_cat_pca),
-                ('cat', model)
+                ("preprocessing", self.preprocessor_cat_pca),
+                ("cat", model)
             ])
             scores = cross_val_score(pipe, self.X, self.y, cv=3, scoring="roc_auc")
             return scores.mean()
@@ -185,18 +184,18 @@ class TitanicModel:
         cat_bo = BayesianOptimization(
             f=cat_cv,
             pbounds={
-                'iterations': (100, 500),
-                'learning_rate': (0.01, 0.3),
-                'depth': (3, 8)
+                "iterations": (100, 500),
+                "learning_rate": (0.01, 0.3),
+                "depth": (3, 8)
             },
-            random_state=71,
+            random_state=42,
             verbose=2
         )
         cat_bo.maximize(init_points=5, n_iter=15)
 
-        self.best_params_cat = cat_bo.max['params']
-        self.best_params_cat['iterations'] = int(self.best_params_cat['iterations'])
-        self.best_params_cat['depth'] = int(self.best_params_cat['depth'])
+        self.best_params_cat = cat_bo.max["params"]
+        self.best_params_cat["iterations"] = int(self.best_params_cat["iterations"])
+        self.best_params_cat["depth"] = int(self.best_params_cat["depth"])
         print("Best CatBoost parameters:", self.best_params_cat)
 
     def train(self) -> None:
@@ -255,7 +254,6 @@ class TitanicModel:
         Predict on the test set using an ensemble of the two models.
         Then, save the submission file.
         """
-
         # Predict probabilities on the test set for each model
         test_pred_xgb = self.pipeline_xgb.predict_proba(self.X_test)[:, 1]
         test_pred_cat = self.pipeline_cat.predict_proba(self.X_test)[:, 1]
@@ -284,10 +282,11 @@ if __name__ == "__main__":
     model.train()
     model.predict()
 
+
 # Data saved to processed_data.csv!
 
-# Numeric features: ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'IsAdult', 'FamSize', 'hasNanny', 'TicketNumber', 'CabinNum']
-# Categorical features: ['Embarked', 'TicketLetter', 'CabinLet']
+# Numeric features: ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "IsAdult", "FamSize", "hasNanny", "TicketNumber", "CabinNum"]
+# Categorical features: ["Embarked", "TicketLetter", "CabinLet"]
 # |   iter    |  target   |   depth   | iterat... | learni... | 
 # ------------------------------------------------------------- 
 # | 1         | 0.7696    | 3.928     | 254.6     | 0.2512    |
@@ -311,6 +310,6 @@ if __name__ == "__main__":
 # | 19        | 0.7826    | 6.045     | 370.7     | 0.174     |
 # | 20        | 0.7831    | 7.462     | 147.2     | 0.2471    |
 # =============================================================
-# Best CatBoost parameters: {'depth': 3, 'iterations': 340, 'learning_rate': 0.032761244104905135}
+# Best CatBoost parameters: {"depth": 3, "iterations": 340, "learning_rate": 0.032761244104905135}
 # Best ensemble weights: XGB: 0.64, CatBoost+PCA: 0.36
 # Submission saved to titanic_submission.csv!

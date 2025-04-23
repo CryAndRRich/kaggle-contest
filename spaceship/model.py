@@ -44,7 +44,7 @@ class SpaceshipModel:
 
         # Identify categorical columns.
         self.categorical_cols = self.X_train.select_dtypes(include=["object"]).columns.tolist()
-        self.categorical_cols += ['HomePlanet', 'Destination']
+        self.categorical_cols += ["HomePlanet", "Destination"]
 
         self._build_pipeline()
 
@@ -113,7 +113,7 @@ class SpaceshipModel:
         Generate predictions on the test dataset using the best found hyperparameters.
         
         This method builds a final pipeline using the best hyperparameters from GridSearchCV, fits the pipeline on the entire 
-        training set, predicts the 'Transported' status for the test set, converts predictions to boolean, and saves the results 
+        training set, predicts the "Transported" status for the test set, converts predictions to boolean, and saves the results 
         as a CSV submission file.
         """
         final_pipeline = Pipeline(steps=[
@@ -145,6 +145,7 @@ class SpaceshipModel:
         submission.to_csv(output_file, index=False)
         print("Submission saved to spaceship_submission.csv!")
 
+
 if __name__ == "__main__":
     datasets_path = "spaceship/datasets"
 
@@ -166,7 +167,7 @@ if __name__ == "__main__":
 #[CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  59.5s
 #[CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  58.1s
 #[CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  55.7s
-#Best parameters found: {'classifier__bagging_temperature': 0, 'classifier__depth': 7, 'classifier__l2_leaf_reg': 1, 'classifier__learning_rate': 0.1}
+#Best parameters found: {"classifier__bagging_temperature": 0, "classifier__depth": 7, "classifier__l2_leaf_reg": 1, "classifier__learning_rate": 0.1}
 #Best CV accuracy: 0.8062985332182917
 #Validation accuracy: 0.8033352501437608
 #Submission saved to spaceship_submission.csv!

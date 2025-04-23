@@ -38,8 +38,8 @@ class MolecularModel:
 
         self.X_test = self.test_data.drop(columns=["Batch_ID", "T80"])
 
-        self.numerical_features = self.X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
-        self.categorical_features = self.X_train.select_dtypes(include=['object', 'category']).columns.tolist()
+        self.numerical_features = self.X_train.select_dtypes(include=["int64", "float64"]).columns.tolist()
+        self.categorical_features = self.X_train.select_dtypes(include=["object", "category"]).columns.tolist()
 
         self._build_pipeline()
 
@@ -49,30 +49,30 @@ class MolecularModel:
         and initialize the hyperparameters for the XGBRegressor
         """
         self.numerical_pipeline = Pipeline(steps=[
-            ('imputer', SimpleImputer(strategy='mean')),
-            ('scaler', StandardScaler())
+            ("imputer", SimpleImputer(strategy="mean")),
+            ("scaler", StandardScaler())
         ])
 
         self.categorical_pipeline = Pipeline(steps=[
-            ('imputer', SimpleImputer(strategy='most_frequent')),
-            ('onehot', OneHotEncoder(handle_unknown='ignore'))
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            ("onehot", OneHotEncoder(handle_unknown="ignore"))
         ])
 
         self.preprocessor = ColumnTransformer(
             transformers=[
-                ('num', self.numerical_pipeline, self.numerical_features),
-                ('cat', self.categorical_pipeline, self.categorical_features)
+                ("num", self.numerical_pipeline, self.numerical_features),
+                ("cat", self.categorical_pipeline, self.categorical_features)
             ]
         )
 
         # Hyperparameters for XGBRegressor fine-tuned by Bayesian optimization
         self.params = {
-            'gamma': 1.446443962043955,
-            'learning_rate': 0.09157530923918498,
-            'max_depth': 10,
-            'min_child_weight': 2.19384448681566,
-            'n_estimators': 831,
-            'random_state': 42
+            "gamma": 1.446443962043955,
+            "learning_rate": 0.09157530923918498,
+            "max_depth": 10,
+            "min_child_weight": 2.19384448681566,
+            "n_estimators": 831,
+            "random_state": 42
         }
 
     def predict(self) -> None:
@@ -80,12 +80,12 @@ class MolecularModel:
         Generate predictions on the test dataset using the best found hyperparameters.
 
         This method builds a final pipeline using the preprocessor and XGBRegressor,
-        fits the pipeline on the entire training set, predicts the 'T80' values for the test set,
+        fits the pipeline on the entire training set, predicts the "T80" values for the test set,
         applies a constant offset, and saves the results as a CSV submission file.
         """
         final_pipeline = Pipeline(steps=[
-            ('preprocessor', self.preprocessor),
-            ('regressor', XGBRegressor(**self.params))
+            ("preprocessor", self.preprocessor),
+            ("regressor", XGBRegressor(**self.params))
         ])
 
         final_pipeline.fit(self.X_train, self.y_train)
@@ -102,6 +102,7 @@ class MolecularModel:
         output_file = os.path.join(self.datasets_dir, "molecular_submission.csv")
         submission.to_csv(output_file, index=False)
         print("Submission saved to molecular_submission.csv!")
+
 
 if __name__ == "__main__":
     datasets_path = "molecular/datasets"

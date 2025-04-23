@@ -28,29 +28,29 @@ class Data:
 
     def __name_processed(self) -> None:
         """
-        Process the 'Name' column to extract titles and adjust them based on the passenger's age.
-        It also creates the 'IsAdult' column.
+        Process the "Name" column to extract titles and adjust them based on the passenger"s age.
+        It also creates the "IsAdult" column.
         """
         # Extract titles from names
-        self.data['Title'] = self.data['Name'].str.extract(
-            r',\s*(Mrs|Mr|Master|Miss|Don|Rev|Dr|Ms|Major|Lady|Sir|Col|Mme|Mlle|Capt|the Countess|Jonkheer)',
+        self.data["Title"] = self.data["Name"].str.extract(
+            r",\s*(Mrs|Mr|Master|Miss|Don|Rev|Dr|Ms|Major|Lady|Sir|Col|Mme|Mlle|Capt|the Countess|Jonkheer)",
             expand=False
         )
 
         # Map certain titles to common ones
-        male_mask = self.data['Title'].isin(['Don', 'Rev', 'Dr', 'Major', 'Sir', 'Col', 'Capt', 'Jonkheer'])
-        female_mask = self.data['Title'].isin(['Lady', 'Ms', 'Mme', 'Mlle', 'the Countess'])
-        self.data.loc[male_mask, 'Title'] = 'Mr'
-        self.data.loc[female_mask, 'Title'] = 'Mrs'
+        male_mask = self.data["Title"].isin(["Don", "Rev", "Dr", "Major", "Sir", "Col", "Capt", "Jonkheer"])
+        female_mask = self.data["Title"].isin(["Lady", "Ms", "Mme", "Mlle", "the Countess"])
+        self.data.loc[male_mask, "Title"] = "Mr"
+        self.data.loc[female_mask, "Title"] = "Mrs"
 
         # Create the IsAdult column using the _check_adult method
-        self.data['IsAdult'] = self.data.apply(self._check_adult, axis=1)
+        self.data["IsAdult"] = self.data.apply(self._check_adult, axis=1)
 
         # Adjust titles based on adult status
-        self.data.loc[(self.data['Title'] == 'Miss') & (self.data['IsAdult'] == 1), 'Title'] = 'Mrs'
-        self.data.loc[(self.data['Title'] == 'Mrs') & (self.data['IsAdult'] == 0), 'Title'] = 'Miss'
-        self.data.loc[(self.data['Title'] == 'Master') & (self.data['IsAdult'] == 1), 'Title'] = 'Mr'
-        self.data.loc[(self.data['Title'] == 'Mr') & (self.data['IsAdult'] == 0), 'Title'] = 'Master'
+        self.data.loc[(self.data["Title"] == "Miss") & (self.data["IsAdult"] == 1), "Title"] = "Mrs"
+        self.data.loc[(self.data["Title"] == "Mrs") & (self.data["IsAdult"] == 0), "Title"] = "Miss"
+        self.data.loc[(self.data["Title"] == "Master") & (self.data["IsAdult"] == 1), "Title"] = "Mr"
+        self.data.loc[(self.data["Title"] == "Mr") & (self.data["IsAdult"] == 0), "Title"] = "Master"
 
     def _check_adult(self, row: pd.Series) -> int:
         """
@@ -62,19 +62,19 @@ class Data:
         Returns:
             int: 1 if the passenger is considered an adult, 0 otherwise.
         """
-        if pd.notnull(row['Age']):
-            return 1 if row['Age'] >= 21 else 0
+        if pd.notnull(row["Age"]):
+            return 1 if row["Age"] >= 21 else 0
         else:
-            return 0 if row['Title'] in ['Master', 'Miss'] else 1
+            return 0 if row["Title"] in ["Master", "Miss"] else 1
 
     def __age_processed(self) -> None:
         """
-        Process the 'Age' column by filling in missing values based on the average age of
+        Process the "Age" column by filling in missing values based on the average age of
         each title group. It also calculates adjusted average ages.
         """
         self.avg_age: dict = {}
-        for title in ['Mr', 'Mrs', 'Master', 'Miss']:
-            valid_ages = self.data[(self.data['Title'] == title) & (self.data['Age'].notnull())]['Age']
+        for title in ["Mr", "Mrs", "Master", "Miss"]:
+            valid_ages = self.data[(self.data["Title"] == title) & (self.data["Age"].notnull())]["Age"]
             mean_age = valid_ages.mean()
 
             def get_avg(age: float, male: bool) -> float:
@@ -85,16 +85,16 @@ class Data:
                 else:
                     return int(age + 1) if male else int(age) + 0.5
 
-            if title in ['Mrs', 'Miss']:
+            if title in ["Mrs", "Miss"]:
                 self.avg_age[title] = get_avg(mean_age, False)
             else:
                 self.avg_age[title] = get_avg(mean_age, True)
 
-        self.data['Age'] = self.data.apply(self._fill_age, axis=1)
+        self.data["Age"] = self.data.apply(self._fill_age, axis=1)
 
     def _fill_age(self, row: pd.Series) -> int:
         """
-        Fill missing Age values based on the title's average age or a default value.
+        Fill missing Age values based on the title"s average age or a default value.
 
         Parameters:
             row: A row from the DataFrame.
@@ -102,35 +102,35 @@ class Data:
         Returns:
             int: The original Age if present, or the imputed Age.
         """
-        if pd.notnull(row['Age']):
-            return row['Age']
-        title = row['Title']
+        if pd.notnull(row["Age"]):
+            return row["Age"]
+        title = row["Title"]
         if title in self.avg_age and not np.isnan(self.avg_age[title]):
             return self.avg_age[title]
         return 28
 
     def __sex_processed(self) -> None:
         """
-        Process the 'Sex' column by converting to lowercase and mapping to numerical values.
+        Process the "Sex" column by converting to lowercase and mapping to numerical values.
         """
-        self.data['Sex'] = self.data['Sex'].str.lower().map({'male': 1, 'female': 0})
+        self.data["Sex"] = self.data["Sex"].str.lower().map({"male": 1, "female": 0})
 
     def __relative_processed(self) -> None:
         """
         Create family size features:
-        - 'FamSize' is the sum of SibSp, Parch, and 1 (the passenger itself).
-        - 'hasNanny' is set to 1 if the passenger is a child traveling alone.
+        - "FamSize" is the sum of SibSp, Parch, and 1 (the passenger itself).
+        - "hasNanny" is set to 1 if the passenger is a child traveling alone.
         """
-        self.data['FamSize'] = self.data['SibSp'] + self.data['Parch'] + 1
+        self.data["FamSize"] = self.data["SibSp"] + self.data["Parch"] + 1
 
-        self.data['hasNanny'] = 0
-        self.data.loc[(self.data['Title'].isin(['Master', 'Miss'])) & (self.data['FamSize'] == 1), 'hasNanny'] = 1
+        self.data["hasNanny"] = 0
+        self.data.loc[(self.data["Title"].isin(["Master", "Miss"])) & (self.data["FamSize"] == 1), "hasNanny"] = 1
 
     def __ticket_processed(self) -> None:
         """
-        Process the 'Ticket' column by splitting it into 'TicketLetter' and 'TicketNumber'.
+        Process the "Ticket" column by splitting it into "TicketLetter" and "TicketNumber".
         """
-        self.data['TicketLetter'], self.data['TicketNumber'] = zip(*self.data['Ticket'].apply(self._split_ticket))
+        self.data["TicketLetter"], self.data["TicketNumber"] = zip(*self.data["Ticket"].apply(self._split_ticket))
 
     def _split_ticket(self, ticket: Any) -> Tuple[str, str]:
         """
@@ -151,11 +151,11 @@ class Data:
 
     def __fare_processed(self) -> None:
         """
-        Process the 'Fare' column by replacing zeros and missing values with the average fare of the passenger's class.
+        Process the "Fare" column by replacing zeros and missing values with the average fare of the passenger"s class.
         """
-        self.data.loc[self.data['Fare'] == 0, 'Fare'] = 1
-        self.avg_fare_by_pclass = self.data.groupby('Pclass')['Fare'].mean()
-        self.data['Fare'] = self.data.apply(self._fill_fare, axis=1)
+        self.data.loc[self.data["Fare"] == 0, "Fare"] = 1
+        self.avg_fare_by_pclass = self.data.groupby("Pclass")["Fare"].mean()
+        self.data["Fare"] = self.data.apply(self._fill_fare, axis=1)
 
     def _fill_fare(self, row: pd.Series) -> int:
         """
@@ -167,17 +167,17 @@ class Data:
         Returns:
             int: The original Fare if available, or the imputed Fare.
         """
-        if pd.isnull(row['Fare']):
-            return self.avg_fare_by_pclass[row['Pclass']]
+        if pd.isnull(row["Fare"]):
+            return self.avg_fare_by_pclass[row["Pclass"]]
         else:
-            return row['Fare']
+            return row["Fare"]
 
     def __cabin_processed(self) -> None:
         """
-        Process the 'Cabin' column by filling missing values and splitting it into 'CabinLet' and 'CabinNum'.
+        Process the "Cabin" column by filling missing values and splitting it into "CabinLet" and "CabinNum".
         """
-        self.data['Cabin'] = self.data['Cabin'].fillna("No")
-        self.data[['CabinLet', 'CabinNum']] = self.data['Cabin'].apply(self._fill_cabin)
+        self.data["Cabin"] = self.data["Cabin"].fillna("No")
+        self.data[["CabinLet", "CabinNum"]] = self.data["Cabin"].apply(self._fill_cabin)
 
     def _fill_cabin(self, cabin: str) -> pd.Series:
         """
@@ -190,35 +190,35 @@ class Data:
             pd.Series: A Series with the cabin letter and cabin number.
         """
         parts = cabin.split()
-        if len(parts) < 2 and parts[-1].lower() == 'no':
-            return pd.Series(['N', -1])
+        if len(parts) < 2 and parts[-1].lower() == "no":
+            return pd.Series(["N", -1])
         elif len(parts) < 2:
             let = parts[-1][0]
             num_str = parts[-1][1:]
-            num_val = 0 if num_str == '' else int(num_str)
+            num_val = 0 if num_str == "" else int(num_str)
             return pd.Series([let, num_val])
         else:
             temp_letters = []
             temp_numbers = []
             for part in parts:
-                if part == 'F':
-                    temp_letters.append('F')
+                if part == "F":
+                    temp_letters.append("F")
                     temp_numbers.append(0)
                 else:
                     temp_letters.append(part[0])
                     num_str = part[1:]
                     temp_numbers.append(int(num_str) if num_str else 0)
-            if 'F' in temp_letters:
-                return pd.Series(['F', 0])
+            if "F" in temp_letters:
+                return pd.Series(["F", 0])
             else:
                 avg_num = int(sum(temp_numbers) / len(temp_numbers))
                 return pd.Series([temp_letters[-1], avg_num])
 
     def __embarked_processed(self) -> None:
         """
-        Process the 'Embarked' column by filling missing values with the mode.
+        Process the "Embarked" column by filling missing values with the mode.
         """
-        self.data['Embarked'] = self.data['Embarked'].fillna(self.data['Embarked'].mode()[0])
+        self.data["Embarked"] = self.data["Embarked"].fillna(self.data["Embarked"].mode()[0])
 
     def data_processed(self) -> None:
         """
@@ -233,11 +233,11 @@ class Data:
         self.__fare_processed()
         self.__cabin_processed()
         self.__embarked_processed()
-        self.data.drop(['Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
+        self.data.drop(["Name", "Ticket", "Cabin"], axis=1, inplace=True)
 
     def save_csv(self) -> str:
         """
-        Save the processed data to a CSV file named 'processed_data.csv' in the datasets directory.
+        Save the processed data to a CSV file named "processed_data.csv" in the datasets directory.
 
         Returns:
             str: The name of the output CSV file.

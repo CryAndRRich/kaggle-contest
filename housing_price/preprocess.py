@@ -34,6 +34,7 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
+
 def impute(df: pd.DataFrame) -> pd.DataFrame:
     """
     Impute missing values in the DataFrame.
@@ -54,6 +55,7 @@ def impute(df: pd.DataFrame) -> pd.DataFrame:
         df[name] = df[name].fillna("None")
     
     return df
+
 
 # List of nominal (unordered) categorical features.
 features_nom = [
@@ -98,6 +100,7 @@ ordered_levels = {
 # Add a "None" level for missing values for all ordinal features.
 ordered_levels = {key: ["None"] + value for key, value in ordered_levels.items()}
 
+
 def encode(df: pd.DataFrame) -> pd.DataFrame:
     """
     Encode categorical features in the DataFrame.
@@ -125,6 +128,7 @@ def encode(df: pd.DataFrame) -> pd.DataFrame:
             # If conversion fails, skip the feature.
             continue
     return df
+
 
 class Data:
     def __init__(self, datasets_path: str) -> None:
@@ -155,12 +159,12 @@ class Data:
     def __drop_uninformative(self) -> None:
         """
         Remove features that are deemed uninformative based on mutual information scores.
-        This method retains columns with MI scores greater than a small threshold and the 'Id' and 'SalePrice' columns.
+        This method retains columns with MI scores greater than a small threshold and the "Id" and "SalePrice" columns.
         """
         mi_scores = self.mi_scores_dataset()
         # Keep features with MI score above 10e-6.
         cols_to_keep = mi_scores[mi_scores > 10e-6].index.tolist()
-        cols_to_keep += ['Id', 'SalePrice']
+        cols_to_keep += ["Id", "SalePrice"]
         self.data = self.data.loc[:, self.data.columns.isin(cols_to_keep)]
 
     def mi_scores_dataset(self) -> pd.Series:
@@ -247,7 +251,7 @@ class Data:
         - Log-transformed features for GrLivArea and MasVnrArea.
         """
         self.data["TotalArea"] = self.data["GrLivArea"] + self.data["TotalBsmtSF"]
-        self.data["TotalSF"] = self.data["FirstFlrSF"] + self.data["SecondFlrSF"] + self.data['BsmtFinSF1'] + self.data['BsmtFinSF2']
+        self.data["TotalSF"] = self.data["FirstFlrSF"] + self.data["SecondFlrSF"] + self.data["BsmtFinSF1"] + self.data["BsmtFinSF2"]
         
         self.data["LivAreaRatio"] = self.data["GrLivArea"] / self.data["TotalSF"]
         self.data["LivLotRatio"] = self.data["GrLivArea"] / self.data["LotArea"]
@@ -294,7 +298,7 @@ class Data:
         self.data["OverallCond"] = self.data["OverallCond"].astype("category")
 
         quality_features = ["ExterQual", "KitchenQual", "BsmtQual", "FireplaceQual", "GarageQual"]
-        qual_mapping = {'Ex': 5, 'Gd': 4, 'TA': 3, 'Fa': 2, 'Po': 1}
+        qual_mapping = {"Ex": 5, "Gd": 4, "TA": 3, "Fa": 2, "Po": 1}
 
         # Map quality features to numeric scores and fill missing values.
         for feat in quality_features:
@@ -353,20 +357,20 @@ class Data:
         - Map basement quality and condition to numeric values.
         - Calculate a basement quality score.
         """
-        qual_mapping = {'NA': 0, 'Po': 1, 'Fa': 2, 'TA': 3, 'Gd': 4, 'Ex': 5}
-        self.data['BsmtQual'] = self.data['BsmtQual'].astype(str)
-        self.data['BsmtCond'] = self.data['BsmtCond'].astype(str)
-        self.data['BsmtQualNum'] = self.data['BsmtQual'].map(qual_mapping)
-        self.data['BsmtCondNum'] = self.data['BsmtCond'].map(qual_mapping)
+        qual_mapping = {"NA": 0, "Po": 1, "Fa": 2, "TA": 3, "Gd": 4, "Ex": 5}
+        self.data["BsmtQual"] = self.data["BsmtQual"].astype(str)
+        self.data["BsmtCond"] = self.data["BsmtCond"].astype(str)
+        self.data["BsmtQualNum"] = self.data["BsmtQual"].map(qual_mapping)
+        self.data["BsmtCondNum"] = self.data["BsmtCond"].map(qual_mapping)
         
         # Convert basement quality columns to categorical.
         self.data["BsmtQual"] = self.data["BsmtQual"].astype("category")
         self.data["BsmtCond"] = self.data["BsmtCond"].astype("category")
         
         # Fill missing numeric mappings with 0 and compute a combined quality score.
-        self.data['BsmtQualNum'] = self.data['BsmtQualNum'].fillna(0)
-        self.data['BsmtCondNum'] = self.data['BsmtCondNum'].fillna(0)
-        self.data['BsmtQualityScore'] = np.round((self.data['BsmtQualNum'] + self.data['BsmtCondNum']) / 2.0).astype(int)
+        self.data["BsmtQualNum"] = self.data["BsmtQualNum"].fillna(0)
+        self.data["BsmtCondNum"] = self.data["BsmtCondNum"].fillna(0)
+        self.data["BsmtQualityScore"] = np.round((self.data["BsmtQualNum"] + self.data["BsmtCondNum"]) / 2.0).astype(int)
     
     def __porch_processed(self) -> None:
         """
@@ -394,7 +398,7 @@ class Data:
     def __k_means(self) -> None:
         """
         Perform KMeans clustering on selected features to create new cluster-based features.
-        This method adds a 'Cluster' label for each row and also appends distances to each cluster centroid.
+        This method adds a "Cluster" label for each row and also appends distances to each cluster centroid.
         """
         # Define features to use for clustering.
         cluster_features = ["LotArea", "TotalBsmtSF", "FirstFlrSF", "SecondFlrSF", "GrLivArea"]
@@ -448,6 +452,7 @@ class Data:
         print("Data saved to processed_data.csv!")
         return self.output
 
+
 if __name__ == "__main__":
     datasets_path = "housing_price/datasets"
     data = Data(datasets_path)
@@ -456,6 +461,6 @@ if __name__ == "__main__":
     data.baseline_score_dataset()
     data.save_csv()
 
-# Baseline RMSLE: 0.13483
-# Baseline MAE (log scale): 0.09351
-# Data saved to processed_data.csv!
+    # Baseline RMSLE: 0.13483
+    # Baseline MAE (log scale): 0.09351
+    # Data saved to processed_data.csv!

@@ -55,8 +55,8 @@ class HousingPriceModel:
         """
         # Pipeline for Gradient Boosting Regressor.
         self.pipeline_gbr = Pipeline(steps=[
-            ('preprocessor', self.preprocessor),
-            ('model', GradientBoostingRegressor(
+            ("preprocessor", self.preprocessor),
+            ("model", GradientBoostingRegressor(
                 random_state=42,
                 learning_rate=0.04792803357072395,
                 max_depth=3,
@@ -68,8 +68,8 @@ class HousingPriceModel:
 
         # Pipeline for CatBoost Regressor.
         self.pipeline_cat = Pipeline(steps=[
-            ('preprocessor', self.preprocessor),
-            ('model', CatBoostRegressor(
+            ("preprocessor", self.preprocessor),
+            ("model", CatBoostRegressor(
                 verbose=0,
                 random_state=42,
                 depth=5,
@@ -95,8 +95,8 @@ class HousingPriceModel:
 
         # Create a column transformer for preprocessing numeric and categorical features.
         self.preprocessor = ColumnTransformer(transformers=[
-            ('num', StandardScaler(), self.numeric_features),
-            ('cat', OneHotEncoder(handle_unknown='ignore'), self.categorical_features)
+            ("num", StandardScaler(), self.numeric_features),
+            ("cat", OneHotEncoder(handle_unknown="ignore"), self.categorical_features)
         ])
 
         # Build the pipelines using the preprocessor.
@@ -137,7 +137,7 @@ class HousingPriceModel:
             Tuple[float, float]: The best weights for GBR and CatBoost respectively.
         """
         best_w = 0.0
-        best_rmsle = float('inf')
+        best_rmsle = float("inf")
         # Iterate over possible weights for GBR from 0 to 1.
         for w in np.arange(0, 1 + step, step):
             # Ensemble prediction as weighted sum.
@@ -169,14 +169,15 @@ class HousingPriceModel:
         # Add a constant adjustment to predictions (e.g., a "surprise" constant).
         surprise_c = 2700
         submission = pd.DataFrame({
-            'Id': self.test_data.index + 1,
-            'SalePrice': ensemble_test_preds + surprise_c
+            "Id": self.test_data.index + 1,
+            "SalePrice": ensemble_test_preds + surprise_c
         })
         
         # Save the submission CSV file.
         output_file = os.path.join(self.datasets_dir, "housing_submission.csv")
         submission.to_csv(output_file, index=False)
         print("Submission saved to housing_submission.csv!")
+
 
 if __name__ == "__main__":
     datasets_path = "housing_price/datasets"
@@ -188,6 +189,7 @@ if __name__ == "__main__":
     model = HousingPriceModel(datasets_path, data_processed_path)
     model.train()
     model.predict()
+
 
 # Data saved to processed_data.csv!
 # Best ensemble weights: GBR: 0.03, CatBoost: 0.97
