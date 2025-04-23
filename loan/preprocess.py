@@ -70,7 +70,6 @@ class Data:
         mi = mutual_info_classif(df, y, discrete_features=discrete_features, random_state=0)
 
         mi_scores = pd.Series(mi, index=df.columns, name="MI Scores").sort_values(ascending=False)
-        mi_scores.to_csv(os.path.join(self.datasets_dir, "mi_score.csv"), index=True)
         return mi_scores
 
     def baseline_score_dataset(self, model: XGBClassifier = XGBClassifier()) -> None:
