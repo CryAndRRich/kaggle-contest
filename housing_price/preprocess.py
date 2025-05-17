@@ -130,19 +130,19 @@ def encode(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-class Data:
-    def __init__(self, datasets_path: str) -> None:
+class Data():
+    def __init__(self, data_path: str) -> None:
         """
-        Initialize the Data object by loading datasets, cleaning, encoding, and imputing missing values.
+        Initialize the Data object by loading data, cleaning, encoding, and imputing missing values.
 
         Parameters:
-            datasets_path (str): Relative path to the datasets directory.
+            data_path: Relative path to the data directory.
         """
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
 
-        # Build file paths for training and testing datasets.
-        train_file_path = os.path.join(self.datasets_dir, "train.csv")
-        test_file_path = os.path.join(self.datasets_dir, "test.csv")
+        # Build file paths for training and testing data.
+        train_file_path = os.path.join(self.data_dir, "train.csv")
+        test_file_path = os.path.join(self.data_dir, "test.csv")
 
         # Read CSV files.
         train_data = pd.read_csv(train_file_path)
@@ -198,7 +198,7 @@ class Data:
         for the training dataset using the specified model.
 
         Parameters:
-            model: The regression model to evaluate. Defaults to XGBRegressor().
+            model: The regression model to evaluate. Defaults to XGBRegressor()
         """
         # Filter training data.
         X = self.data[self.data["Id"] <= 1460].copy()
@@ -441,26 +441,26 @@ class Data:
 
     def save_csv(self) -> str:
         """
-        Save the processed DataFrame to a CSV file in the datasets directory.
+        Save the processed DataFrame to a CSV file in the data directory.
 
         Returns:
             str: The filename of the saved CSV.
         """
         self.output = "processed_data.csv"
-        output_file = os.path.join(self.datasets_dir, self.output)
+        output_file = os.path.join(self.data_dir, self.output)
         self.data.to_csv(output_file, index=False)
         print("Data saved to processed_data.csv!")
         return self.output
 
 
 if __name__ == "__main__":
-    datasets_path = "housing_price/datasets"
-    data = Data(datasets_path)
+    data_path = "housing_price/data"
+    data = Data(data_path)
     
     data.data_processed()
     data.baseline_score_dataset()
     data.save_csv()
 
-    # Baseline RMSLE: 0.13483
-    # Baseline MAE (log scale): 0.09351
-    # Data saved to processed_data.csv!
+# Baseline RMSLE: 0.13483
+# Baseline MAE (log scale): 0.09351
+# Data saved to processed_data.csv!

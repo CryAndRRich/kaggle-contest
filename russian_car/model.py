@@ -19,17 +19,19 @@ from catboost import CatBoostRegressor
 
 from preprocess import Data
 
-class RussianCarModel:
-    def __init__(self, datasets_path: str, data_processed_path: str) -> None:
+class RussianCarModel():
+    def __init__(self, 
+                 data_path: str, 
+                 data_processed_path: str) -> None:
         """
         Initialize the RussianCarModel instance
 
         Params:
-            datasets_path: Relative path to the datasets directory
+            data_path: Relative path to the data directory
             data_processed_path: Relative path to the processed data CSV file
         """
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
-        data_path = os.path.join(self.datasets_dir, data_processed_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
+        data_path = os.path.join(self.data_dir, data_processed_path)
         
         data = pd.read_csv(data_path)
 
@@ -179,17 +181,17 @@ class RussianCarModel:
         })
         
         # Save the submission CSV file.
-        output_file = os.path.join(self.datasets_dir, "russian_car_submission.csv")
+        output_file = os.path.join(self.data_dir, "russian_car_submission.csv")
         submission.to_csv(output_file, index=False)
         print("Submission saved to russian_car_submission.csv!")
 
 
 if __name__ == "__main__":
-    datasets_path = "russian_car/datasets"
+    data_path = "russian_car/data"
 
-    data = Data(datasets_path)
+    data = Data(data_path)
     data.data_processed()
     data_processed_path = data.save_csv()
 
-    model = RussianCarModel(datasets_path, data_processed_path)
+    model = RussianCarModel(data_path, data_processed_path)
     model.predict()

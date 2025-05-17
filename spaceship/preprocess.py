@@ -9,17 +9,17 @@ from xgboost import XGBClassifier
 
 pd.set_option("future.no_silent_downcasting", True)
 
-class Data:
-    def __init__(self, datasets_path: str) -> None:
+class Data():
+    def __init__(self, data_path: str) -> None:
         """
-        Initialize the Data object by loading datasets
+        Initialize the Data object by loading data
         
         Parameters:
-            datasets_path: Relative path to the datasets directory
+            data_path: Relative path to the data directory
         """
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
-        train_file_path = os.path.join(self.datasets_dir, "train.csv")
-        test_file_path = os.path.join(self.datasets_dir, "test.csv")
+        self.data_dir = os.path.join(os.getcwd(), data_path)
+        train_file_path = os.path.join(self.data_dir, "train.csv")
+        test_file_path = os.path.join(self.data_dir, "test.csv")
 
         train_data = pd.read_csv(train_file_path)
         test_data = pd.read_csv(test_file_path)
@@ -75,7 +75,7 @@ class Data:
         mi_scores_df.columns = ["Feature", "MI Score"]
 
         # Save the mutual information scores to a text file.
-        output_file = os.path.join(self.datasets_dir, "mi_scores.txt")
+        output_file = os.path.join(self.data_dir, "mi_scores.txt")
         mi_scores_df.to_csv(output_file, index=False)
         return mi_scores
 
@@ -283,18 +283,18 @@ class Data:
             str: The output file name
         """
         self.output = "processed_data.csv"
-        output_file = os.path.join(self.datasets_dir, self.output)
+        output_file = os.path.join(self.data_dir, self.output)
         self.data.to_csv(output_file, index=False)
         print("Data saved to processed_data.csv!")
         return self.output
 
 if __name__ == "__main__":
-    datasets_path = "spaceship/datasets"
-    data = Data(datasets_path)
+    data_path = "spaceship/data"
+    data = Data(data_path)
     data.data_processed()
     data.mi_scores()
     data.baseline_score()
     data.save_csv()
 
-#Baseline Accuracy: 0.67584
-#Baseline ROC AUC: 0.84504
+# Baseline Accuracy: 0.67584
+# Baseline ROC AUC: 0.84504

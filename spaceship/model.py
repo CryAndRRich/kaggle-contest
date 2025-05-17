@@ -15,18 +15,20 @@ from catboost import CatBoostClassifier
 
 from preprocess import Data
 
-class SpaceshipModel:
-    def __init__(self, datasets_path: str, data_processed_path: str) -> None:
+class SpaceshipModel():
+    def __init__(self, 
+                 data_path: str, 
+                 data_processed_path: str) -> None:
         """
         Initialize the SpaceshipModel by loading processed data and preparing training and test sets.
         
         Parameters:
-            datasets_path: The relative path to the datasets directory.
+            data_path: The relative path to the data directory.
             data_processed_path: The filename of the processed data CSV.
         """
         # Set the dataset directory.
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
-        data_path = os.path.join(self.datasets_dir, data_processed_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
+        data_path = os.path.join(self.data_dir, data_processed_path)
         
         # Read the processed CSV data.
         data = pd.read_csv(data_path)
@@ -141,33 +143,33 @@ class SpaceshipModel:
         })
         
         # Save the submission CSV file.
-        output_file = os.path.join(self.datasets_dir, "spaceship_submission.csv")
+        output_file = os.path.join(self.data_dir, "spaceship_submission.csv")
         submission.to_csv(output_file, index=False)
         print("Submission saved to spaceship_submission.csv!")
 
 
 if __name__ == "__main__":
-    datasets_path = "spaceship/datasets"
+    data_path = "spaceship/data"
 
-    data = Data(datasets_path)
+    data = Data(data_path)
     data.data_processed()
     data_processed_path = data.save_csv()
 
-    model = SpaceshipModel(datasets_path, data_processed_path)
+    model = SpaceshipModel(data_path, data_processed_path)
     model.train()
     model.predict()
 
-#Fitting 3 folds for each of 144 candidates, totalling 432 fits
-#[CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.01; total time=   6.5s
-#[CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.01; total time=   6.6s
-#[CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.1; total time=   6.7s
-#[CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.01; total time=   6.9s
-#...
-#[CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.2; total time=  60.0s
-#[CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  59.5s
-#[CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  58.1s
-#[CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  55.7s
-#Best parameters found: {"classifier__bagging_temperature": 0, "classifier__depth": 7, "classifier__l2_leaf_reg": 1, "classifier__learning_rate": 0.1}
-#Best CV accuracy: 0.8062985332182917
-#Validation accuracy: 0.8033352501437608
-#Submission saved to spaceship_submission.csv!
+# Fitting 3 folds for each of 144 candidates, totalling 432 fits
+# [CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.01; total time=   6.5s
+# [CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.01; total time=   6.6s
+# [CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.1; total time=   6.7s
+# [CV] END classifier__bagging_temperature=0, classifier__depth=3, classifier__l2_leaf_reg=1, classifier__learning_rate=0.01; total time=   6.9s
+# ...
+# [CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.2; total time=  60.0s
+# [CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  59.5s
+# [CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  58.1s
+# [CV] END classifier__bagging_temperature=1, classifier__depth=9, classifier__l2_leaf_reg=10, classifier__learning_rate=0.3; total time=  55.7s
+# Best parameters found: {"classifier__bagging_temperature": 0, "classifier__depth": 7, "classifier__l2_leaf_reg": 1, "classifier__learning_rate": 0.1}
+# Best CV accuracy: 0.8062985332182917
+# Validation accuracy: 0.8033352501437608
+# Submission saved to spaceship_submission.csv!

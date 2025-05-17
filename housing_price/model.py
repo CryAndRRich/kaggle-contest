@@ -17,18 +17,20 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from preprocess import Data
 
-class HousingPriceModel:
-    def __init__(self, datasets_path: str, data_processed_path: str) -> None:
+class HousingPriceModel():
+    def __init__(self, 
+                 data_path: str, 
+                 data_processed_path: str) -> None:
         """
         Initialize the HousingPriceModel by loading processed data and preparing training and test sets.
 
         Parameters:
-            datasets_path: The relative path to the datasets directory.
+            data_path: The relative path to the data directory.
             data_processed_path: The filename of the processed data CSV.
         """
         # Set the dataset directory.
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
-        data_path = os.path.join(self.datasets_dir, data_processed_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
+        data_path = os.path.join(self.data_dir, data_processed_path)
         
         # Read the processed CSV data.
         data = pd.read_csv(data_path)
@@ -174,22 +176,21 @@ class HousingPriceModel:
         })
         
         # Save the submission CSV file.
-        output_file = os.path.join(self.datasets_dir, "housing_submission.csv")
+        output_file = os.path.join(self.data_dir, "housing_submission.csv")
         submission.to_csv(output_file, index=False)
         print("Submission saved to housing_submission.csv!")
 
 
 if __name__ == "__main__":
-    datasets_path = "housing_price/datasets"
+    data_path = "housing_price/data"
 
-    data = Data(datasets_path)
+    data = Data(data_path)
     data.data_processed()
     data_processed_path = data.save_csv()
 
-    model = HousingPriceModel(datasets_path, data_processed_path)
+    model = HousingPriceModel(data_path, data_processed_path)
     model.train()
     model.predict()
-
 
 # Data saved to processed_data.csv!
 # Best ensemble weights: GBR: 0.03, CatBoost: 0.97

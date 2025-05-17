@@ -7,27 +7,27 @@ from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_val_score
 from xgboost import XGBRegressor
 
-from datasets.supplemental_english import *
+from data.supplemental_english import *
 
-class Data:
-    def __init__(self, datasets_path: str) -> None:
+class Data():
+    def __init__(self, data_path: str) -> None:
         """
-        Initialize the Data object by loading train and test datasets and concatenating them
+        Initialize the Data object by loading train and test data and concatenating them
 
         Parameters:
-            datasets_path: The relative path to the datasets directory containing "train.csv" and "test.csv"
+            data_path: The relative path to the data directory containing "train.csv" and "test.csv"
         """
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
 
         # Build file paths for train and test CSV files
-        train_file_path = os.path.join(self.datasets_dir, "train.csv")
-        test_file_path = os.path.join(self.datasets_dir, "test.csv")
+        train_file_path = os.path.join(self.data_dir, "train.csv")
+        test_file_path = os.path.join(self.data_dir, "test.csv")
 
         # Read CSV files into DataFrames
         train_data = pd.read_csv(train_file_path)
         test_data = pd.read_csv(test_file_path)
         
-        # Concatenate train and test datasets into a single DataFrame
+        # Concatenate train and test data into a single DataFrame
         self.data = pd.concat([train_data, test_data], axis=0, ignore_index=True)
 
     def __drop_uninformative(self) -> None:
@@ -71,8 +71,9 @@ class Data:
     def baseline_score_dataset(self, model: XGBRegressor = XGBRegressor()) -> None:
         """
         Evaluate the baseline performance of a regression model on the dataset
+        
         Parameters:
-            model: The regression model to use for evaluation
+            model: The model to evaluate. Defaults to XGBRegressor()
         """
 
         # Use only the training data based on the "id" threshold
@@ -341,20 +342,20 @@ class Data:
             str: The name of the output CSV file
         """
         self.output = "processed_data.csv"
-        output_file = os.path.join(self.datasets_dir, self.output)
+        output_file = os.path.join(self.data_dir, self.output)
         self.data.to_csv(output_file, index=False)
         print("Data saved to processed_data.csv!")
         return self.output
 
 if __name__ == "__main__":
-    datasets_path = "russian_car/datasets"
-    data = Data(datasets_path)
+    data_path = "russian_car/data"
+    data = Data(data_path)
     
     data.data_processed()
     data.baseline_score_dataset()
     data.save_csv()
 
-#Baseline RMSLE: 0.04979
-#Baseline MAE: 0.43341
-#Baseline SMAPE: 40.21632
-#Data saved to processed_data.csv!
+# Baseline RMSLE: 0.04979
+# Baseline MAE: 0.43341
+# Baseline SMAPE: 40.21632
+# Data saved to processed_data.csv!

@@ -36,23 +36,22 @@ def to_numeric_func(x: pd.DataFrame) -> pd.DataFrame:
     return x.apply(pd.to_numeric, errors="coerce")
 
 
-class TitanicModel:
+class TitanicModel():
     """
     A class to build an ensemble model to predict Titanic survival using XGBoost and CatBoost+PCA.
     """
     def __init__(self, 
-                 datasets_path: str, 
+                 data_path: str, 
                  data_processed_path: str) -> None:
         """
-        Initialize the model with the paths for datasets, processed data
+        Initialize the model with the paths for data, processed data
 
         Parameters:
-            datasets_path: Path to the directory containing the datasets.
-            checkpoints_path: Path to the directory containing the checkpoints.
+            data_path: Path to the directory containing the data.
+            data_processed_path: The filename of the processed data CSV.
         """
-        self.checkpoints_path = checkpoints_path
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
-        data_path = os.path.join(self.datasets_dir, data_processed_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
+        data_path = os.path.join(self.data_dir, data_processed_path)
         data = pd.read_csv(data_path)
 
         # Split data into train and test sets based on PassengerId
@@ -266,19 +265,18 @@ class TitanicModel:
             "Survived": final_predictions
         })
 
-        output_file = os.path.join(self.datasets_dir, "titanic_submission.csv")
+        output_file = os.path.join(self.data_dir, "titanic_submission.csv")
         self.submission.to_csv(output_file, index=False)
         print("Submission saved to titanic_submission.csv!")
 
 if __name__ == "__main__":
-    datasets_path = "titanic/datasets"
-    checkpoints_path = "titanic/checkpoints"
+    data_path = "titanic/data"
 
-    data = Data(datasets_path)
+    data = Data(data_path)
     data.data_processed()
     data_processed_path = data.save_csv()
 
-    model = TitanicModel(datasets_path, data_processed_path, checkpoints_path)
+    model = TitanicModel(data_path, data_processed_path)
     model.train()
     model.predict()
 

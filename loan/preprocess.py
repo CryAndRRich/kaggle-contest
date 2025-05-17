@@ -8,24 +8,24 @@ from sklearn.model_selection import cross_val_score
 
 from xgboost import XGBClassifier
 
-class Data:
-    def __init__(self, datasets_path: str) -> None:
+class Data():
+    def __init__(self, data_path: str) -> None:
         """
         Initialize the Data object by loading raw train and test CSVs,
         concatenating them, and performing initial missing-value handling
 
         Parameters:
-            datasets_path: Path to the directory containing "train.csv" and "test.csv"
+            data_path: Path to the directory containing "train.csv" and "test.csv"
         """
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
 
         # Load training and testing data
-        train_file_path = os.path.join(self.datasets_dir, "train.csv")
-        test_file_path = os.path.join(self.datasets_dir, "test.csv")
+        train_file_path = os.path.join(self.data_dir, "train.csv")
+        test_file_path = os.path.join(self.data_dir, "test.csv")
         train_data = pd.read_csv(train_file_path)
         test_data = pd.read_csv(test_file_path)
 
-        # Combine datasets for unified preprocessing
+        # Combine data for unified preprocessing
         self.data = pd.concat([train_data, test_data], axis=0, ignore_index=True)
 
         # Initial fill for categorical and numerical columns
@@ -51,7 +51,7 @@ class Data:
     def mi_scores_dataset(self) -> pd.Series:
         """
         Compute mutual information scores for all features against "Credit Default".
-        Saves the MI scores to "mi_score.csv" in the datasets directory
+        Saves the MI scores to "mi_score.csv" in the data directory
 
         Returns:
             pd.Series: A pandas Series of MI scores, indexed by feature name
@@ -70,6 +70,7 @@ class Data:
         mi = mutual_info_classif(df, y, discrete_features=discrete_features, random_state=0)
 
         mi_scores = pd.Series(mi, index=df.columns, name="MI Scores").sort_values(ascending=False)
+        # mi_scores.to_csv(os.path.join(self.data_dir, "mi_score.csv"), index=True)
         return mi_scores
 
     def baseline_score_dataset(self, model: XGBClassifier = XGBClassifier()) -> None:
@@ -78,7 +79,7 @@ class Data:
         Reports Accuracy, Precision, Recall, and F1
 
         Parameters:
-            model: A scikit-learn-compatible classifier
+            model: The model to evaluate. Defaults to XGBClassifier()
         """
         df = self.data[self.data["Id"] <= 7499].copy()
         y = df.pop("Credit Default")
@@ -234,28 +235,28 @@ class Data:
 
     def save_csv(self) -> str:
         """
-        Save the processed data to a CSV file in the datasets directory
+        Save the processed data to a CSV file in the data directory
 
         Returns:
             str: The filename of the saved CSV
         """
-        output_file = os.path.join(self.datasets_dir, "processed_data.csv")
+        output_file = os.path.join(self.data_dir, "processed_data.csv")
         self.data.to_csv(output_file, index=False)
         print("Data saved to processed_data.csv!")
         return "processed_data.csv"
 
 
 if __name__ == "__main__":
-    datasets_path = "loan/datasets"
-    data = Data(datasets_path)
+    data_path = "loan/data"
+    data = Data(data_path)
 
     data.data_processed()
     data.mi_scores_dataset()
     data.baseline_score_dataset()
     data.save_csv()
 
-#Baseline Accuracy: 0.75813
-#Baseline Precision: 0.61652
-#Baseline Recall: 0.37386
-#Baseline F1: 0.46526
-#Data saved to processed_data.csv!
+# Baseline Accuracy: 0.75813
+# Baseline Precision: 0.61652
+# Baseline Recall: 0.37386
+# Baseline F1: 0.46526
+# Data saved to processed_data.csv!

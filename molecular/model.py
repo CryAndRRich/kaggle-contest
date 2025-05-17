@@ -14,17 +14,19 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 from preprocess import Data
 
-class MolecularModel:
-    def __init__(self, datasets_path: str, data_processed_path: str) -> None:
+class MolecularModel():
+    def __init__(self, 
+                 data_path: str, 
+                 data_processed_path: str) -> None:
         """
         Initialize the MolecularModel instance
 
         Params:
-            datasets_path: Relative path to the datasets directory
+            data_path: Relative path to the data directory
             data_processed_path: Relative path to the processed data CSV file
         """
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
-        data_path = os.path.join(self.datasets_dir, data_processed_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
+        data_path = os.path.join(self.data_dir, data_processed_path)
         
         data = pd.read_csv(data_path)
 
@@ -99,17 +101,17 @@ class MolecularModel:
         })
         
         # Save the submission CSV file.
-        output_file = os.path.join(self.datasets_dir, "molecular_submission.csv")
+        output_file = os.path.join(self.data_dir, "molecular_submission.csv")
         submission.to_csv(output_file, index=False)
         print("Submission saved to molecular_submission.csv!")
 
 
 if __name__ == "__main__":
-    datasets_path = "molecular/datasets"
+    data_path = "molecular/data"
 
-    data = Data(datasets_path)
+    data = Data(data_path)
     data.data_processed()
     data_processed_path = data.save_csv()
 
-    model = MolecularModel(datasets_path, data_processed_path)
+    model = MolecularModel(data_path, data_processed_path)
     model.predict()

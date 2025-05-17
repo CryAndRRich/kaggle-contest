@@ -4,23 +4,23 @@ from typing import Tuple, Any
 import numpy as np
 import pandas as pd
 
-class Data:
+class Data():
     """
     A class for processing the Titanic dataset by merging the training and test sets
     and applying various feature engineering steps.
     """
-    def __init__(self, datasets_path: str) -> None:
+    def __init__(self, data_path: str) -> None:
         """
-        Initialize the Data object with the path to the datasets. It loads both
+        Initialize the Data object with the path to the data. It loads both
         train and test CSV files and concatenates them.
 
         Parameters:
-            datasets_path: The relative path to the directory containing the datasets.
+            data_path: The relative path to the directory containing the data.
         """
-        self.datasets_dir = os.path.join(os.getcwd(), datasets_path)
+        self.data_dir = os.path.join(os.getcwd(), data_path)
 
-        train_file_path = os.path.join(self.datasets_dir, "train.csv")
-        test_file_path = os.path.join(self.datasets_dir, "test.csv")
+        train_file_path = os.path.join(self.data_dir, "train.csv")
+        test_file_path = os.path.join(self.data_dir, "test.csv")
 
         train_data = pd.read_csv(train_file_path)
         test_data = pd.read_csv(test_file_path)
@@ -237,19 +237,19 @@ class Data:
 
     def save_csv(self) -> str:
         """
-        Save the processed data to a CSV file named "processed_data.csv" in the datasets directory.
+        Save the processed data to a CSV file named "processed_data.csv" in the data directory.
 
         Returns:
             str: The name of the output CSV file.
         """
         self.output = "processed_data.csv"
-        output_file = os.path.join(self.datasets_dir, self.output)
+        output_file = os.path.join(self.data_dir, self.output)
         self.data.to_csv(output_file, index=False)
         print("Data saved to processed_data.csv!")
         return self.output
 
 if __name__ == "__main__":
-    datasets_path = "titanic/datasets"
-    data = Data(datasets_path)
+    data_path = "titanic/data"
+    data = Data(data_path)
     data.data_processed()
     data.save_csv()
